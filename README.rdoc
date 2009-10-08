@@ -1,6 +1,6 @@
 = Mmap
 
-  * http://rubyforge.org/frs/?group_id=8350
+* http://rubyforge.org/frs/?group_id=8350
 
 == DESCRIPTION
 

@@ -15,6 +15,8 @@ HOE = Hoe.spec 'mmap' do
   %w{ rake-compiler }.each do |dep|
     self.extra_dev_deps << [dep, '>= 0']
   end
+
+  self.spec_extras = { :extensions => ["ext/mmap/extconf.rb"] }
 end
 
 RET = Rake::ExtensionTask.new("mmap", HOE.spec) do |ext|
