@@ -9,7 +9,7 @@ require "rake/extensiontask"
 HOE = Hoe.spec 'mmap' do
   developer('Guy Decoux', 'ts@moulon.inra.fr')
   self.readme_file   = 'README.rdoc'
-  self.history_file  = 'CHANGELOG.rdoc'
+  self.history_file  = 'Changes'
   self.extra_rdoc_files  = FileList['*.rdoc']
 
   %w{ rake-compiler }.each do |dep|

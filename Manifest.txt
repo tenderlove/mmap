@@ -1,0 +1,12 @@
+Changes
+Manifest.txt
+README.rdoc
+Rakefile
+b.rb
+ext/mmap/extconf.rb
+ext/mmap/mmap.c
+lib/mmap.rb
+mmap.html
+mmap.rd
+test/mmapt.rb
+test/runit_.rb

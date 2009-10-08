@@ -1,30 +1,32 @@
+= Mmap
 
- The Mmap class implement memory-mapped file objects 
+  * http://rubyforge.org/frs/?group_id=8350
 
- * Installation
+== DESCRIPTION
 
-    ruby extconf.rb
-    make
-    make install
+he Mmap class implement memory-mapped file objects 
 
- * Documentation
+== Installation
 
-    make rd2
-    make rdoc
-    make ri
+  ruby extconf.rb
+  make
+  make install
 
-    See mmap.rd, mmap.html
+== Documentation
 
- * Tests : if you have rubyunit
+  make rd2
+  make rdoc
+  make ri
 
-   make test
+  See mmap.rd, mmap.html
+
  
- * Copying
+== Copying
 
-  This extension module is copyrighted free software by Guy Decoux
+This extension module is copyrighted free software by Guy Decoux
 
- You can redistribute it and/or modify it under the same term as
- Ruby.
+You can redistribute it and/or modify it under the same term as
+Ruby.
 
 
 Guy Decoux <ts@moulon.inra.fr>
