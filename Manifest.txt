@@ -8,5 +8,4 @@ ext/mmap/mmap.c
 lib/mmap.rb
 mmap.html
 mmap.rd
-test/mmapt.rb
-test/runit_.rb
+test/test_mmap.rb
