@@ -1,0 +1,272 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html 
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Untitled</title>
+</head>
+<body>
+<h1><a name="label-0" id="label-0">Mmap</a></h1><!-- RDLabel: "Mmap" -->
+<p><a href="ftp://moulon.inra.fr/pub/ruby/">Download</a></p>
+<p>The Mmap class implement memory-mapped file objects</p>
+<h3><a name="label-1" id="label-1">WARNING</a></h3><!-- RDLabel: "WARNING" -->
+<h3><a name="label-2" id="label-2">The variables $' and $` are not available with gsub! and sub!</a></h3><!-- RDLabel: "The variables $' and $` are not available with gsub! and sub!" -->
+<h2><a name="label-3" id="label-3">SuperClass</a></h2><!-- RDLabel: "SuperClass" -->
+<p>Object</p>
+<h2><a name="label-4" id="label-4">Included Modules</a></h2><!-- RDLabel: "Included Modules" -->
+<ul>
+<li>Comparable</li>
+<li>Enumerable</li>
+</ul>
+<h2><a name="label-5" id="label-5">Class Methods</a></h2><!-- RDLabel: "Class Methods" -->
+<dl>
+<dt><a name="label-6" id="label-6"><code>lockall(<var>flag</var>)</code></a></dt><!-- RDLabel: "lockall" -->
+<dd>
+disable paging of all pages mapped. <var>flag</var> can be 
+<var>Mmap::MCL_CURRENT</var> or <var>Mmap::MCL_FUTURE</var></dd>
+<dt><a name="label-7" id="label-7"><code>new(<var>file</var>, <var>mode</var> = "<var>r</var>", <var>protection</var> = <var>Mmap</var>::<var>MAP_SHARED</var>, <var>options</var> = {})</code></a></dt><!-- RDLabel: "new" -->
+<dt><a name="label-8" id="label-8"><code>new(<var>nil</var>, <var>length</var>, <var>protection</var> = <var>Mmap</var>::<var>MAP_SHARED</var>, <var>options</var> = {})</code></a></dt><!-- RDLabel: "new" -->
+<dd>
+create a new Mmap object
+<dl>
+<dt><a name="label-9" id="label-9"><var>file</var></a></dt><!-- RDLabel: "file" -->
+<dd>
+Pathname of the file, if <var>nil</var> is given an anonymous map
+is created <var>Mmanp::MAP_ANON</var>
+</dd>
+<dt><a name="label-10" id="label-10"><var>mode</var></a></dt><!-- RDLabel: "mode" -->
+<dd>
+Mode to open the file, it can be "r", "w", "rw", "a"
+</dd>
+<dt><a name="label-11" id="label-11"><var>protection</var></a></dt><!-- RDLabel: "protection" -->
+<dd>
+specify the nature of the mapping
+<dl>
+<dt><a name="label-12" id="label-12"><var>Mmap::MAP_SHARED</var></a></dt><!-- RDLabel: "Mmap::MAP_SHARED" -->
+<dd>
+Creates a mapping that's shared with all other processes 
+mapping the same areas of the file. 
+The default value is <var>Mmap::MAP_SHARED</var>
+</dd>
+<dt><a name="label-13" id="label-13"><var>Mmap::MAP_PRIVATE</var></a></dt><!-- RDLabel: "Mmap::MAP_PRIVATE" -->
+<dd>
+Creates a private copy-on-write mapping, so changes to the
+contents of the mmap object will be private to this process
+</dd>
+</dl>
+</dd>
+<dt><a name="label-14" id="label-14"><var>options</var></a></dt><!-- RDLabel: "options" -->
+<dd>
+Hash. If one of the options <var>length</var> or <var>offset</var>
+is specified it will not possible to modify the size of
+the mapped file.
+<dl>
+<dt><a name="label-15" id="label-15"><var>length</var></a></dt><!-- RDLabel: "length" -->
+<dd>
+Maps <var>length</var> bytes from the file
+</dd>
+<dt><a name="label-16" id="label-16"><var>offset</var></a></dt><!-- RDLabel: "offset" -->
+<dd>
+The mapping begin at <var>offset</var>
+</dd>
+<dt><a name="label-17" id="label-17"><var>advice</var></a></dt><!-- RDLabel: "advice" -->
+<dd>
+The type of the access (see #madvise)
+</dd>
+</dl>
+</dd>
+</dl></dd>
+<dt><a name="label-18" id="label-18"><code>unlockall</code></a></dt><!-- RDLabel: "unlockall" -->
+<dd>
+reenable paging</dd>
+</dl>
+<h2><a name="label-19" id="label-19">Methods</a></h2><!-- RDLabel: "Methods" -->
+<dl>
+<dt><a name="label-20" id="label-20"><code>extend(<var>count</var>)</code></a></dt><!-- RDLabel: "extend" -->
+<dd>
+add <var>count</var> bytes to the file (i.e. pre-extend the file) </dd>
+<dt><a name="label-21" id="label-21"><code>madvise(<var>advice</var>)</code></a></dt><!-- RDLabel: "madvise" -->
+<dd>
+<var>advice</var> can have the value <var>Mmap::MADV_NORMAL</var>,
+<var>Mmap::MADV_RANDOM</var>, <var>Mmap::MADV_SEQUENTIAL</var>,
+<var>Mmap::MADV_WILLNEED</var>, <var>Mmap::MADV_DONTNEED</var></dd>
+<dt><a name="label-22" id="label-22"><code>mprotect(<var>mode</var>)</code></a></dt><!-- RDLabel: "mprotect" -->
+<dd>
+change the mode, value must be "r", "w" or "rw"</dd>
+<dt><a name="label-23" id="label-23"><code>mlock</code></a></dt><!-- RDLabel: "mlock" -->
+<dd>
+disable paging</dd>
+<dt><a name="label-24" id="label-24"><code>msync</code></a></dt><!-- RDLabel: "msync" -->
+<dt><a name="label-25" id="label-25"><code>flush</code></a></dt><!-- RDLabel: "flush" -->
+<dd>
+flush the file</dd>
+<dt><a name="label-26" id="label-26"><code>munlock</code></a></dt><!-- RDLabel: "munlock" -->
+<dd>
+reenable paging</dd>
+<dt><a name="label-27" id="label-27"><code>munmap</code></a></dt><!-- RDLabel: "munmap" -->
+<dd>
+terminate the association</dd>
+</dl>
+<h3><a name="label-28" id="label-28">Other methods with the same syntax than for the class String</a></h3><!-- RDLabel: "Other methods with the same syntax than for the class String" -->
+<dl>
+<dt><a name="label-29" id="label-29"><code><var>self</var> == <var>other</var></code></a></dt><!-- RDLabel: "self == other" -->
+<dd>
+comparison</dd>
+<dt><a name="label-30" id="label-30"><code><var>self</var> &gt; <var>other</var></code></a></dt><!-- RDLabel: "self > other" -->
+<dd>
+comparison</dd>
+<dt><a name="label-31" id="label-31"><code><var>self</var> &gt;= <var>other</var></code></a></dt><!-- RDLabel: "self >= other" -->
+<dd>
+comparison</dd>
+<dt><a name="label-32" id="label-32"><code><var>self</var> &lt; <var>other</var></code></a></dt><!-- RDLabel: "self < other" -->
+<dd>
+comparison</dd>
+<dt><a name="label-33" id="label-33"><code><var>self</var> &lt;= <var>other</var></code></a></dt><!-- RDLabel: "self <= other" -->
+<dd>
+comparison</dd>
+<dt><a name="label-34" id="label-34"><code><var>self</var> === <var>other</var></code></a></dt><!-- RDLabel: "self === other" -->
+<dd>
+used for <var>case</var> comparison</dd>
+<dt><a name="label-35" id="label-35"><code><var>self</var> &lt;&lt; <var>other</var></code></a></dt><!-- RDLabel: "self << other" -->
+<dd>
+append <var>other</var> to <var>self</var></dd>
+<dt><a name="label-36" id="label-36"><code><var>self</var> =~ <var>other</var></code></a></dt><!-- RDLabel: "self =~ other" -->
+<dd>
+return an index of the match </dd>
+<dt><a name="label-37" id="label-37"><code>self[nth]</code></a></dt><!-- RDLabel: "self[nth]" -->
+<dd>
+retrieve the <var>nth</var> character</dd>
+<dt><a name="label-38" id="label-38"><code>self[start..last]</code></a></dt><!-- RDLabel: "self[start..last]" -->
+<dd>
+return a substring from <var>start</var> to <var>last</var></dd>
+<dt><a name="label-39" id="label-39"><code>self[start, <var>length</var>]</code></a></dt><!-- RDLabel: "self[start, length]" -->
+<dd>
+return a substring of <var>lenght</var> characters from <var>start</var> </dd>
+<dt><a name="label-40" id="label-40"><code>self[nth] = <var>val</var></code></a></dt><!-- RDLabel: "self[nth] = val" -->
+<dd>
+change the <var>nth</var> character with <var>val</var></dd>
+<dt><a name="label-41" id="label-41"><code>self[start..last] = <var>val</var></code></a></dt><!-- RDLabel: "self[start..last] = val" -->
+<dd>
+change substring from <var>start</var> to <var>last</var> with <var>val</var></dd>
+<dt><a name="label-42" id="label-42"><code>self[start, <var>len</var>] = <var>val</var></code></a></dt><!-- RDLabel: "self[start, len] = val" -->
+<dd>
+replace <var>length</var> characters from <var>start</var> with <var>val</var>.</dd>
+<dt><a name="label-43" id="label-43"><code><var>self</var> &lt;=&gt; <var>other</var></code></a></dt><!-- RDLabel: "self <=> other" -->
+<dd>
+comparison : return -1, 0, 1</dd>
+<dt><a name="label-44" id="label-44"><code>casecmp(<var>other</var>)   &gt;= <var>1</var>.<var>7</var>.<var>1</var></code></a></dt><!-- RDLabel: "casecmp" -->
+<dt><a name="label-45" id="label-45"><code>concat(<var>other</var>)</code></a></dt><!-- RDLabel: "concat" -->
+<dd>
+append the contents of <var>other</var></dd>
+<dt><a name="label-46" id="label-46"><code>capitalize!</code></a></dt><!-- RDLabel: "capitalize!" -->
+<dd>
+change the first character to uppercase letter</dd>
+<dt><a name="label-47" id="label-47"><code>chop!</code></a></dt><!-- RDLabel: "chop!" -->
+<dd>
+chop off the last character</dd>
+<dt><a name="label-48" id="label-48"><code>chomp!([<var>rs</var>])</code></a></dt><!-- RDLabel: "chomp!" -->
+<dd>
+chop off the  line ending character, specified by <var>rs</var></dd>
+<dt><a name="label-49" id="label-49"><code>count(<var>o1</var> [, <var>o2</var>, ...])</code></a></dt><!-- RDLabel: "count" -->
+<dd>
+each parameter defines a set of character to count</dd>
+<dt><a name="label-50" id="label-50"><code>crypt(<var>salt</var>)</code></a></dt><!-- RDLabel: "crypt" -->
+<dd>
+crypt with <var>salt</var> </dd>
+<dt><a name="label-51" id="label-51"><code>delete!(<var>str</var>)</code></a></dt><!-- RDLabel: "delete!" -->
+<dd>
+delete every characters included in <var>str</var></dd>
+<dt><a name="label-52" id="label-52"><code>downcase!</code></a></dt><!-- RDLabel: "downcase!" -->
+<dd>
+change all uppercase character to lowercase character</dd>
+<dt><a name="label-53" id="label-53"><code>each_byte {|<var>char</var>|...}</code></a></dt><!-- RDLabel: "each_byte" -->
+<dd>
+iterate on each byte</dd>
+<dt><a name="label-54" id="label-54"><code>each([<var>rs</var>]) {|<var>line</var>|...}</code></a></dt><!-- RDLabel: "each" -->
+<dt><a name="label-55" id="label-55"><code>each_line([<var>rs</var>]) {|<var>line</var>|...}</code></a></dt><!-- RDLabel: "each_line" -->
+<dd>
+iterate on each line</dd>
+<dt><a name="label-56" id="label-56"><code>empty?</code></a></dt><!-- RDLabel: "empty?" -->
+<dd>
+return <var>true</var> if the file is empty</dd>
+<dt><a name="label-57" id="label-57"><code>freeze</code></a></dt><!-- RDLabel: "freeze" -->
+<dd>
+freeze the current file </dd>
+<dt><a name="label-58" id="label-58"><code>frozen</code></a></dt><!-- RDLabel: "frozen" -->
+<dd>
+return <var>true</var> if the file is frozen</dd>
+<dt><a name="label-59" id="label-59"><code>gsub!(<var>pattern</var>, <var>replace</var>)</code></a></dt><!-- RDLabel: "gsub!" -->
+<dd>
+global substitution</dd>
+<dt><a name="label-60" id="label-60"><code>gsub!(<var>pattern</var>) {|<var>str</var>|...}</code></a></dt><!-- RDLabel: "gsub!" -->
+<dd>
+global substitution</dd>
+<dt><a name="label-61" id="label-61"><code>include?(<var>other</var>)</code></a></dt><!-- RDLabel: "include?" -->
+<dd>
+return <var>true</var> if <var>other</var> is found</dd>
+<dt><a name="label-62" id="label-62"><code>index(<var>substr</var>[, <var>pos</var>])</code></a></dt><!-- RDLabel: "index" -->
+<dd>
+return the index of <var>substr</var> </dd>
+<dt><a name="label-63" id="label-63"><code>insert(<var>index</var>, <var>str</var>) &gt;= <var>1</var>.<var>7</var>.<var>1</var></code></a></dt><!-- RDLabel: "insert" -->
+<dd>
+insert <var>str</var> at <var>index</var></dd>
+<dt><a name="label-64" id="label-64"><code>length</code></a></dt><!-- RDLabel: "length" -->
+<dd>
+return the size of the file</dd>
+<dt><a name="label-65" id="label-65"><code>reverse!</code></a></dt><!-- RDLabel: "reverse!" -->
+<dd>
+reverse the content of the file </dd>
+<dt><a name="label-66" id="label-66"><code>rindex(<var>substr</var>[, <var>pos</var>])</code></a></dt><!-- RDLabel: "rindex" -->
+<dd>
+return the index of the last occurrence of <var>substr</var></dd>
+<dt><a name="label-67" id="label-67"><code>scan(<var>pattern</var>)</code></a></dt><!-- RDLabel: "scan" -->
+<dd>
+return an array of all occurence matched by <var>pattern</var> </dd>
+<dt><a name="label-68" id="label-68"><code>scan(<var>pattern</var>) {|<var>str</var>| ...}</code></a></dt><!-- RDLabel: "scan" -->
+<dd>
+iterate through the file, matching the <var>pattern</var></dd>
+<dt><a name="label-69" id="label-69"><code>size</code></a></dt><!-- RDLabel: "size" -->
+<dd>
+return the size of the file</dd>
+<dt><a name="label-70" id="label-70"><code>slice</code></a></dt><!-- RDLabel: "slice" -->
+<dd>
+same than <var>[]</var></dd>
+<dt><a name="label-71" id="label-71"><code>slice!</code></a></dt><!-- RDLabel: "slice!" -->
+<dd>
+delete the specified portion of the file</dd>
+<dt><a name="label-72" id="label-72"><code>split([<var>sep</var>[, <var>limit</var>]])</code></a></dt><!-- RDLabel: "split" -->
+<dd>
+splits into a list of strings and return this array</dd>
+<dt><a name="label-73" id="label-73"><code>squeeze!([<var>str</var>])</code></a></dt><!-- RDLabel: "squeeze!" -->
+<dd>
+squeezes sequences of the same characters which is included in <var>str</var></dd>
+<dt><a name="label-74" id="label-74"><code>strip!</code></a></dt><!-- RDLabel: "strip!" -->
+<dd>
+removes leading and trailing whitespace</dd>
+<dt><a name="label-75" id="label-75"><code>sub!(<var>pattern</var>, <var>replace</var>)</code></a></dt><!-- RDLabel: "sub!" -->
+<dd>
+substitution </dd>
+<dt><a name="label-76" id="label-76"><code>sub!(<var>pattern</var>) {|<var>str</var>| ...}</code></a></dt><!-- RDLabel: "sub!" -->
+<dd>
+substitution</dd>
+<dt><a name="label-77" id="label-77"><code>sum([<var>bits</var>])</code></a></dt><!-- RDLabel: "sum" -->
+<dd>
+return a checksum</dd>
+<dt><a name="label-78" id="label-78"><code>swapcase!</code></a></dt><!-- RDLabel: "swapcase!" -->
+<dd>
+replaces all lowercase characters to uppercase characters, and vice-versa</dd>
+<dt><a name="label-79" id="label-79"><code>tr!(<var>search</var>, <var>replace</var>)</code></a></dt><!-- RDLabel: "tr!" -->
+<dd>
+translate the character from <var>search</var> to <var>replace</var> </dd>
+<dt><a name="label-80" id="label-80"><code>tr_s!(<var>search</var>, <var>replace</var>)</code></a></dt><!-- RDLabel: "tr_s!" -->
+<dd>
+translate the character from <var>search</var> to <var>replace</var>, then
+squeeze sequence of the same characters </dd>
+<dt><a name="label-81" id="label-81"><code>upcase!</code></a></dt><!-- RDLabel: "upcase!" -->
+<dd>
+replaces all lowercase characters to downcase characters</dd>
+</dl>
+
+</body>
+</html>
