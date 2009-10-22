@@ -2345,7 +2345,7 @@ mm_scan(obj, a)
  * Document-method: each_line
  *
  * call-seq:
- *    each(rs = $/) { |block| ... }
+ *    each(rs = $/, &block)
  *
  * iterate on each line
  */
@@ -2365,7 +2365,7 @@ mm_each_line(argc, argv, obj)
 }
 
 /*
- * call-seq: each_byte { |b| ... }
+ * call-seq: each_byte(&block)
  *
  * iterate on each byte
  */

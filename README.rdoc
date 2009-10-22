@@ -4,22 +4,26 @@
 
 == DESCRIPTION
 
-he Mmap class implement memory-mapped file objects 
+The Mmap class implement memory-mapped file objects 
+
+== SYNOPSIS
+
+  require 'mmap'
+  
+  mmap = Mmap.new(__FILE__)
+  mmap.advise(Mmap::MADV_SEQUENTIAL)
+  
+  mmap.each do |line|
+    puts line
+  end
 
 == Installation
 
-  ruby extconf.rb
-  make
-  make install
+  gem install mmap
 
 == Documentation
 
-  make rd2
-  make rdoc
-  make ri
-
-  See mmap.rd, mmap.html
-
+  rake docs
  
 == Copying
 
