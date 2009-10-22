@@ -232,6 +232,11 @@ mm_vunlock(obj)
     return Qnil;
 }
 
+/*
+ * call-seq: semlock
+ *
+ * Create a lock
+ */
 static VALUE
 mm_semlock(argc, argv, obj)
     int argc;
@@ -259,6 +264,11 @@ mm_semlock(argc, argv, obj)
     return Qnil;
 }
 
+/*
+ * call-seq: ipc_key
+ *
+ * Get the ipc key
+ */
 static VALUE
 mm_ipc_key(obj)
     VALUE obj;
@@ -645,6 +655,11 @@ mm_s_alloc(obj)
     return res;
 }
 
+/*
+ * call-seq: initialize
+ *
+ * Create a new Mmap object
+ */
 static VALUE
 mm_init(argc, argv, obj)
     VALUE obj, *argv;
@@ -1240,6 +1255,13 @@ mm_sub_bang_int(bang_st)
     return res;
 }
 
+/*
+ * call-seq:
+ *    str.sub!(pattern, replacement)      => str or nil
+ *    str.sub!(pattern) {|match| block }  => str or nil
+ *
+ * substitution 
+ */
 static VALUE
 mm_sub_bang(argc, argv, obj)
     int argc;
@@ -1346,6 +1368,13 @@ mm_gsub_bang_int(bang_st)
     return obj;
 }
 
+/*
+ * call-seq:
+ *    str.gsub!(pattern, replacement)        => str or nil
+ *    str.gsub!(pattern) {|match| block }    => str or nil
+ *
+ * global substitution
+ */
 static VALUE
 mm_gsub_bang(argc, argv, obj)
     int argc;
@@ -1552,6 +1581,11 @@ mm_insert(str, idx, str2)
 
 static VALUE mm_aref_m _((int, VALUE *, VALUE));
 
+/*
+ * call-seq: slice!(str)
+ *
+ * delete the specified portion of the file
+ */
 static VALUE
 mm_slice_bang(argc, argv, str)
     int argc;
@@ -1616,6 +1650,14 @@ mm_append(str1, str2)
     return str1;
 }
 
+/*
+ * Document-method: concat
+ * Document-method: <<
+ *
+ * call-seq: concat(other)
+ *
+ * append the contents of <em>other</em>
+ */
 static VALUE
 mm_concat(str1, str2)
     VALUE str1, str2;
@@ -1633,6 +1675,11 @@ mm_concat(str1, str2)
 
 #ifndef HAVE_RB_STR_LSTRIP
 
+/*
+ * call-seq: strip!
+ *
+ * removes leading and trailing whitespace
+ */
 static VALUE
 mm_strip_bang(str)
     VALUE str;
@@ -1670,6 +1717,11 @@ mm_strip_bang(str)
 
 #else
 
+/*
+ * call-seq: lstrip!
+ *
+ * removes leading whitespace
+ */
 static VALUE
 mm_lstrip_bang(str)
     VALUE str;
@@ -1698,6 +1750,11 @@ mm_lstrip_bang(str)
     return Qnil;
 }
 
+/*
+ * call-seq: rstrip!
+ *
+ * removes trailing whitespace
+ */
 static VALUE
 mm_rstrip_bang(str)
     VALUE str;
@@ -2043,6 +2100,11 @@ mm_swapcase_bang(a)
     return mm_bang_i(a, MM_MODIFY, rb_intern("swapcase!"), 0, 0);
 }
  
+/*
+ * call-seq: reverse!
+ *
+ * reverse the content of the file 
+ */
 static VALUE
 mm_reverse_bang(a)
     VALUE a;
@@ -2050,6 +2112,11 @@ mm_reverse_bang(a)
     return mm_bang_i(a, MM_MODIFY, rb_intern("reverse!"), 0, 0);
 }
 
+/*
+ * call-seq: chop!
+ *
+ * chop off the last character
+ */
 static VALUE
 mm_chop_bang(a)
     VALUE a;
@@ -2057,6 +2124,11 @@ mm_chop_bang(a)
     return mm_bang_i(a, MM_CHANGE, rb_intern("chop!"), 0, 0);
 }
 
+/*
+ * call-seq: chomp!(rs = $/)
+ *
+ * chop off the  line ending character, specified by <em>rs</em>
+ */
 static VALUE
 mm_chomp_bang(argc, argv, obj)
     int argc;
@@ -2065,6 +2137,11 @@ mm_chomp_bang(argc, argv, obj)
     return mm_bang_i(obj, MM_CHANGE | MM_PROTECT, rb_intern("chomp!"), argc, argv);
 }
 
+/*
+ * call-seq: delete!(str)
+ *
+ * delete every characters included in <em>str</em>
+ */
 static VALUE
 mm_delete_bang(argc, argv, obj)
     int argc;
@@ -2073,6 +2150,11 @@ mm_delete_bang(argc, argv, obj)
     return mm_bang_i(obj, MM_CHANGE | MM_PROTECT, rb_intern("delete!"), argc, argv);
 }
 
+/*
+ * squeeze!(str)
+ *
+ * squeezes sequences of the same characters which is included in <em>str</em>
+ */
 static VALUE
 mm_squeeze_bang(argc, argv, obj)
     int argc;
@@ -2081,6 +2163,11 @@ mm_squeeze_bang(argc, argv, obj)
     return mm_bang_i(obj, MM_CHANGE | MM_PROTECT, rb_intern("squeeze!"), argc, argv);
 }
 
+/*
+ * call-seq: tr!(search, replace)
+ *
+ * translate the character from <em>search</em> to <em>replace</em> 
+ */
 static VALUE
 mm_tr_bang(obj, a, b)
     VALUE obj, a, b;
@@ -2091,6 +2178,12 @@ mm_tr_bang(obj, a, b)
     return mm_bang_i(obj, MM_MODIFY | MM_PROTECT, rb_intern("tr!"), 2, tmp);
 }
 
+/*
+ * call-seq: tr_s!(search, replace)
+ *
+ * translate the character from <em>search</em> to <em>replace</em>, then
+ * squeeze sequence of the same characters 
+ */
 static VALUE
 mm_tr_s_bang(obj, a, b)
     VALUE obj, a, b;
@@ -2101,6 +2194,11 @@ mm_tr_s_bang(obj, a, b)
     return mm_bang_i(obj, MM_CHANGE | MM_PROTECT, rb_intern("tr_s!"), 2, tmp);
 }
 
+/*
+ * call-seq: crypt
+ *
+ * crypt with <em>salt</em> 
+ */
 static VALUE
 mm_crypt(a, b)
     VALUE a, b;
@@ -2108,6 +2206,11 @@ mm_crypt(a, b)
     return mm_bang_i(a, MM_ORIGIN, rb_intern("crypt"), 1, &b);
 }
 
+/*
+ * call-seq: include?(other)
+ *
+ * return <em>true</em> if <em>other</em> is found
+ */
 static VALUE
 mm_include(a, b)
     VALUE a, b;
@@ -2169,6 +2272,11 @@ mm_aref_m(argc, argv, obj)
     return mm_bang_i(obj, MM_ORIGIN, rb_intern("[]"), argc, argv);
 }
 
+/*
+ * call-seq: sum(bits = 16)
+ *
+ * return a checksum
+ */
 static VALUE
 mm_sum(argc, argv, obj)
     int argc;
@@ -2190,6 +2298,11 @@ mm_split(argc, argv, obj)
     return mm_bang_i(obj, MM_ORIGIN, rb_intern("split"), argc, argv);
 }
 
+/*
+ * call-seq: count(o1, *args)
+ *
+ * each parameter defines a set of character to count
+ */
 static VALUE
 mm_count(argc, argv, obj)
     int argc;
@@ -2205,6 +2318,11 @@ mm_internal_each(tmp)
     return rb_funcall2(tmp[0], (ID)tmp[1], (int)tmp[2], (VALUE *)tmp[3]);
 }
 
+/*
+ * call-seq: scan(pattern, &block)
+ *
+ * return an array of all occurence matched by <em>pattern</em> 
+ */
 static VALUE
 mm_scan(obj, a)
     VALUE obj, a;
@@ -2222,6 +2340,15 @@ mm_scan(obj, a)
     return obj;
 }
 
+/*
+ * Document-method: each
+ * Document-method: each_line
+ *
+ * call-seq:
+ *    each(rs = $/) { |block| ... }
+ *
+ * iterate on each line
+ */
 static VALUE
 mm_each_line(argc, argv, obj)
     int argc;
@@ -2237,6 +2364,11 @@ mm_each_line(argc, argv, obj)
     return obj;
 }
 
+/*
+ * call-seq: each_byte { |b| ... }
+ *
+ * iterate on each byte
+ */
 static VALUE
 mm_each_byte(argc, argv, obj)
     int argc;
@@ -2395,11 +2527,7 @@ Init_mmap()
     rb_define_const(mm_cMap, "MCL_FUTURE", INT2FIX(MCL_FUTURE));
 #endif
 
-#if HAVE_RB_DEFINE_ALLOC_FUNC
     rb_define_alloc_func(mm_cMap, mm_s_alloc);
-#else
-    rb_define_singleton_method(mm_cMap, "allocate", mm_s_alloc, 0);
-#endif
     rb_define_singleton_method(mm_cMap, "new", mm_s_new, -1);
     rb_define_singleton_method(mm_cMap, "mlockall", mm_mlockall, 1);
     rb_define_singleton_method(mm_cMap, "lockall", mm_mlockall, 1);
