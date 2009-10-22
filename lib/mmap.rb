@@ -398,5 +398,16 @@
 require 'mmap/mmap'
 
 class Mmap
+  include Comparable
+  include Enumerable
+
   VERSION = '0.2.6'
+
+  def clone # :nodoc:
+    raise TypeError, "can't clone instance of #{self.class}"
+  end
+
+  def dup # :nodoc:
+    raise TypeError, "can't dup instance of #{self.class}"
+  end
 end

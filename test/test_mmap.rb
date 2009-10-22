@@ -28,6 +28,24 @@ class TestMmap < Test::Unit::TestCase
     File.readlines(@mmap_c, nil)[0]
   end
 
+  def test_inspect
+    assert @mmap.inspect
+  end
+
+  # Make sure clone raises.  Cloning would be bad.
+  def test_clone
+    assert_raises(TypeError) do
+      @mmap.clone
+    end
+  end
+
+  # Make sure dup raises.  Cloning would be bad.
+  def test_dup
+    assert_raises(TypeError) do
+      @mmap.dup
+    end
+  end
+
   def test_length
     assert_equal(@mmap.length, @str.length, "<lenght>")
   end
