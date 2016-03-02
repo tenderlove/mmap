@@ -12,9 +12,8 @@
 #include <sys/sem.h>
 #endif
 
-#include <rubyio.h>
-#include <intern.h>
-#include <re.h>
+#include <ruby/io.h>
+#include <ruby/re.h>
 
 #ifndef StringValue
 #define StringValue(x) do { 				\
@@ -41,8 +40,8 @@
 #endif
 #endif
 
-#define BEG(no) regs->beg[no]
-#define END(no) regs->end[no]
+#define BEG(no) rmatch->regs.beg[no]
+#define END(no) rmatch->regs.end[no]
 
 #ifndef MMAP_RETTYPE
 #ifndef _POSIX_C_SOURCE
@@ -330,9 +329,7 @@ mm_freeze(obj)
 }
 
 static VALUE
-mm_str(obj, modify)
-    VALUE obj;
-    int modify;
+mm_str(VALUE obj, int modify)
 {
     mm_ipc *i_mm;
     VALUE ret = Qnil;
@@ -357,11 +354,12 @@ mm_str(obj, modify)
     }
     free(RSTRING(ret)->ptr);
 #endif
-    RSTRING(ret)->ptr = i_mm->t->addr;
-    RSTRING(ret)->len = i_mm->t->real;
+    RSTRING(ret)->as.heap.ptr = i_mm->t->addr;
+    RSTRING(ret)->as.heap.aux.capa = i_mm->t->real;
     if (modify & MM_ORIGIN) {
 #if HAVE_RB_DEFINE_ALLOC_FUNC
-	RSTRING(ret)->aux.shared = ret;
+	RSTRING(ret)->as.heap.aux.shared = ret;
+	FL_SET(ret, RSTRING_NOEMBED);
 	FL_SET(ret, ELTS_SHARED);
 #else
 	RSTRING(ret)->orig = ret;
@@ -732,13 +730,13 @@ mm_init(argc, argv, obj)
             VALUE tmp;
 
             vmode = rb_convert_type(vmode, T_ARRAY, "Array", "to_ary");
-            if (RARRAY(vmode)->len != 2) {
+            if (RARRAY_LEN(vmode) != 2) {
                 rb_raise(rb_eArgError, "Invalid length %d (expected 2)",
-                         RARRAY(vmode)->len);
+                         RARRAY_LEN(vmode));
             }
-	    tmp = RARRAY(vmode)->ptr[0];
+	    tmp = rb_ary_entry(vmode, 0);
 	    mode = StringValuePtr(tmp);
-	    perm = NUM2INT(RARRAY(vmode)->ptr[1]);
+	    perm = NUM2INT(rb_ary_entry(vmode, 1));
 	}
 	else {
 	    mode = StringValuePtr(vmode);
@@ -1054,7 +1052,7 @@ do {									   \
     }									   \
     else {								   \
 	bp = StringValuePtr(b);						   \
-	bl = RSTRING(b)->len;						   \
+	bl = RSTRING_LEN(b);						   \
     }									   \
 } while (0);
 
@@ -1179,7 +1177,7 @@ mm_correct_backref()
     RMATCH(match)->str = rb_str_new(StringValuePtr(RMATCH(match)->str) + start,
 				    RMATCH(match)->END(0) - start);
     if (OBJ_TAINTED(match)) OBJ_TAINT(RMATCH(match)->str);
-    for (i = 0; i < RMATCH(match)->regs->num_regs && RMATCH(match)->BEG(i) != -1; i++) {
+    for (i = 0; i < RMATCH(match)->rmatch->regs.num_regs && RMATCH(match)->BEG(i) != -1; i++) {
 	RMATCH(match)->BEG(i) -= start;
 	RMATCH(match)->END(i) -= start;
     }
@@ -1219,34 +1217,34 @@ mm_sub_bang_int(bang_st)
     if (rb_reg_search(pat, str, 0, 0) >= 0) {
 	start = mm_correct_backref();
 	match = rb_backref_get();
-	regs = RMATCH(match)->regs;
+	regs = &RMATCH(match)->rmatch->regs;
 	if (iter) {
 	    rb_match_busy(match);
 	    repl = rb_obj_as_string(rb_yield(rb_reg_nth_match(0, match)));
 	    rb_backref_set(match);
 	}
 	else {
-	    RSTRING(str)->ptr += start;
-	    repl = rb_reg_regsub(repl, str, regs);
-	    RSTRING(str)->ptr -= start;
+	    RSTRING(str)->as.heap.ptr += start;
+	    repl = rb_reg_regsub(repl, str, regs, match);
+	    RSTRING(str)->as.heap.ptr -= start;
 	}
 	if (OBJ_TAINTED(repl)) tainted = 1;
-	plen = END(0) - BEG(0);
-	if (RSTRING(repl)->len > plen) {
-	    mm_realloc(i_mm, RSTRING(str)->len + RSTRING(repl)->len - plen);
-	    RSTRING(str)->ptr = i_mm->t->addr;
+	plen = RMATCH(match)->END(0) - RMATCH(match)->BEG(0);
+	if (RSTRING_LEN(repl) > plen) {
+	    mm_realloc(i_mm, RSTRING_LEN(str) + RSTRING_LEN(repl) - plen);
+	    RSTRING(str)->as.heap.ptr = i_mm->t->addr;
 	}
-	if (RSTRING(repl)->len != plen) {
+	if (RSTRING_LEN(repl) != plen) {
 	    if (i_mm->t->flag & MM_FIXED) {
 		rb_raise(rb_eTypeError, "try to change the size of a fixed map");
 	    }
-	    memmove(RSTRING(str)->ptr + start + BEG(0) + RSTRING(repl)->len,
-		    RSTRING(str)->ptr + start + BEG(0) + plen,
-		    RSTRING(str)->len - start - BEG(0) - plen);
+	    memmove(RSTRING_PTR(str) + start + RMATCH(match)->BEG(0) + RSTRING_LEN(repl),
+		    RSTRING_PTR(str) + start + RMATCH(match)->BEG(0) + plen,
+		    RSTRING_LEN(str) - start - RMATCH(match)->BEG(0) - plen);
 	}
-	memcpy(RSTRING(str)->ptr + start + BEG(0),
-	       RSTRING(repl)->ptr, RSTRING(repl)->len);
-	i_mm->t->real += RSTRING(repl)->len - plen;
+	memcpy(RSTRING_PTR(str) + start + RMATCH(match)->BEG(0),
+	       RSTRING_PTR(repl), RSTRING_LEN(repl));
+	i_mm->t->real += RSTRING_LEN(repl) - plen;
 	if (tainted) OBJ_TAINT(obj);
 
 	res = obj;
@@ -1324,42 +1322,42 @@ mm_gsub_bang_int(bang_st)
     while (beg >= 0) {
 	start = mm_correct_backref();
 	match = rb_backref_get();
-	regs = RMATCH(match)->regs;
+	regs = &RMATCH(match)->rmatch->regs;
 	if (iter) {
 	    rb_match_busy(match);
 	    val = rb_obj_as_string(rb_yield(rb_reg_nth_match(0, match)));
 	    rb_backref_set(match);
 	}
 	else {
-	    RSTRING(str)->ptr += start;
-	    val = rb_reg_regsub(repl, str, regs);
-	    RSTRING(str)->ptr -= start;
+	    RSTRING(str)->as.heap.ptr += start;
+	    val = rb_reg_regsub(repl, str, regs, match);
+	    RSTRING(str)->as.heap.ptr -= start;
 	}
 	if (OBJ_TAINTED(repl)) tainted = 1;
-	plen = END(0) - BEG(0);
-	if ((i_mm->t->real + RSTRING(val)->len - plen) > i_mm->t->len) {
-	    mm_realloc(i_mm, RSTRING(str)->len + RSTRING(val)->len - plen);
+	plen = RMATCH(match)->END(0) - RMATCH(match)->BEG(0);
+	if ((i_mm->t->real + RSTRING_LEN(val) - plen) > i_mm->t->len) {
+	    mm_realloc(i_mm, RSTRING_LEN(str) + RSTRING_LEN(val) - plen);
 	}
-	if (RSTRING(val)->len != plen) {
+	if (RSTRING_LEN(val) != plen) {
 	    if (i_mm->t->flag & MM_FIXED) {
 		rb_raise(rb_eTypeError, "try to change the size of a fixed map");
 	    }
-	    memmove(RSTRING(str)->ptr + start + BEG(0) + RSTRING(val)->len,
-		    RSTRING(str)->ptr + start + BEG(0) + plen,
-		    RSTRING(str)->len - start - BEG(0) - plen);
+	    memmove(RSTRING_PTR(str) + start + RMATCH(match)->BEG(0) + RSTRING_LEN(val),
+		    RSTRING_PTR(str) + start + RMATCH(match)->BEG(0) + plen,
+		    RSTRING_LEN(str) - start - RMATCH(match)->BEG(0) - plen);
 	}
-	memcpy(RSTRING(str)->ptr + start + BEG(0),
-	       RSTRING(val)->ptr, RSTRING(val)->len);
-	RSTRING(str)->len += RSTRING(val)->len - plen;
-	i_mm->t->real = RSTRING(str)->len;
-	if (BEG(0) == END(0)) {
-	    offset = start + END(0) + mbclen2(RSTRING(str)->ptr[END(0)], pat);
-	    offset += RSTRING(val)->len - plen;
+	memcpy(RSTRING_PTR(str) + start + RMATCH(match)->BEG(0),
+	       RSTRING_PTR(val), RSTRING_LEN(val));
+	RSTRING(str)->as.heap.len += RSTRING_LEN(val) - plen;
+	i_mm->t->real = RSTRING_LEN(str);
+	if (RMATCH(match)->BEG(0) == RMATCH(match)->END(0)) {
+	    offset = start + RMATCH(match)->END(0) + mbclen2(RSTRING_PTR(str)[RMATCH(match)->END(0)], pat);
+	    offset += RSTRING_LEN(val) - plen;
 	}
 	else {
-	    offset = start + END(0) + RSTRING(val)->len - plen;
+	    offset = start + RMATCH(match)->END(0) + RSTRING_LEN(val) - plen;
 	}
-	if (offset > RSTRING(str)->len) break;
+	if (offset > RSTRING_LEN(str)) break;
 	beg = rb_reg_search(pat, str, offset, 0);
     }
     rb_backref_set(match);
@@ -1418,7 +1416,7 @@ mm_subpat_set(obj, re, offset, val)
 	rb_raise(rb_eIndexError, "regexp not matched");
     }
     match = rb_backref_get();
-    if (offset >= RMATCH(match)->regs->num_regs) {
+    if (offset >= RMATCH(match)->rmatch->regs.num_regs) {
 	rb_raise(rb_eIndexError, "index %d out of regexp", offset);
     }
 
@@ -1484,7 +1482,7 @@ mm_aset(str, indx, val)
 
 	  res = mm_index(1, &indx, str);
 	  if (!NIL_P(res)) {
-	      mm_update(i_mm, NUM2LONG(res), RSTRING(indx)->len, val);
+	      mm_update(i_mm, NUM2LONG(res), RSTRING_LEN(indx), val);
 	  }
 	  return val;
       }
@@ -1568,7 +1566,7 @@ mm_insert(str, idx, str2)
 
     GetMmap(str, i_mm, MM_MODIFY);
     if (pos == -1) {
-	pos = RSTRING(str)->len;
+	pos = RSTRING_LEN(str);
     }
     else if (pos < 0) {
 	pos++;
@@ -1646,7 +1644,7 @@ mm_append(str1, str2)
     VALUE str1, str2;
 {
     str2 = rb_str_to_str(str2);
-    str1 = mm_cat(str1, StringValuePtr(str2), RSTRING(str2)->len);
+    str1 = mm_cat(str1, StringValuePtr(str2), RSTRING_LEN(str2));
     return str1;
 }
 
@@ -1999,7 +1997,7 @@ mm_i_bang(bang_st)
     }
     if (res != Qnil) {
 	GetMmap(bang_st->obj, i_mm, 0);
-	i_mm->t->real = RSTRING(str)->len;
+	i_mm->t->real = RSTRING_LEN(str);
     }
     return res;
 }

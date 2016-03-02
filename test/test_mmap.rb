@@ -1,5 +1,5 @@
 require 'mmap'
-require 'ftools'
+require 'fileutils'
 require 'tempfile'
 require 'test/unit'
 
@@ -8,7 +8,7 @@ class TestMmap < Test::Unit::TestCase
 
   def setup
     @tmp = Dir.tmpdir
-    File.cp(File.join(EXT_DIR, 'mmap.c'), @tmp)
+    FileUtils.cp(File.join(EXT_DIR, 'mmap.c'), @tmp)
 
     @mmap_c = File.join(@tmp, 'mmap.c')
 
