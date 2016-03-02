@@ -305,7 +305,7 @@ mm_unmap(obj)
 	    }
 	    free(i_mm->t->path);
 	}
-	i_mm->t->path = '\0';
+	i_mm->t->path = NULL;
 	mm_unlock(i_mm);
     }
     return Qnil;
@@ -396,7 +396,7 @@ mm_i_expand(st_mm)
     }
     if (len > i_mm->t->len) {
 	if (lseek(fd, len - i_mm->t->len - 1, SEEK_END) == -1) {
-	    rb_raise(rb_eIOError, "Can't lseek %d", len - i_mm->t->len - 1);
+	    rb_raise(rb_eIOError, "Can't lseek %lu", len - i_mm->t->len - 1);
 	}
 	if (write(fd, "\000", 1) != 1) {
 	    rb_raise(rb_eIOError, "Can't extend %s", i_mm->t->path);
@@ -505,14 +505,14 @@ mm_i_options(arg, obj)
     if (strcmp(options, "length") == 0) {
 	i_mm->t->len = NUM2UINT(value);
 	if (i_mm->t->len <= 0) {
-	    rb_raise(rb_eArgError, "Invalid value for length %d", i_mm->t->len);
+	    rb_raise(rb_eArgError, "Invalid value for length %zu", i_mm->t->len);
 	}
 	i_mm->t->flag |= MM_FIXED;
     }
     else if (strcmp(options, "offset") == 0) {
 	i_mm->t->offset = NUM2INT(value);
 	if (i_mm->t->offset < 0) {
-	    rb_raise(rb_eArgError, "Invalid value for offset %d", i_mm->t->offset);
+	    rb_raise(rb_eArgError, "Invalid value for offset %lld", i_mm->t->offset);
 	}
 	i_mm->t->flag |= MM_FIXED;
     }
@@ -721,7 +721,7 @@ mm_init(argc, argv, obj)
 
             vmode = rb_convert_type(vmode, T_ARRAY, "Array", "to_ary");
             if (RARRAY_LEN(vmode) != 2) {
-                rb_raise(rb_eArgError, "Invalid length %d (expected 2)",
+                rb_raise(rb_eArgError, "Invalid length %ld (expected 2)",
                          RARRAY_LEN(vmode));
             }
 	    tmp = rb_ary_entry(vmode, 0);
@@ -776,7 +776,7 @@ mm_init(argc, argv, obj)
     if (options != Qnil) {
 	rb_iterate(rb_each, options, mm_i_options, obj);
 	if (path && (i_mm->t->len + i_mm->t->offset) > st.st_size) {
-	    rb_raise(rb_eArgError, "invalid value for length (%d) or offset (%d)",
+	    rb_raise(rb_eArgError, "invalid value for length (%ld) or offset (%lld)",
 		     i_mm->t->len, i_mm->t->offset);
 	}
 	if (i_mm->t->len) size = i_mm->t->len;
@@ -868,7 +868,7 @@ mm_init(argc, argv, obj)
     else {
 	if (size == 0 && (smode & O_RDWR)) {
 	    if (lseek(fd, i_mm->t->incr - 1, SEEK_END) == -1) {
-		rb_raise(rb_eIOError, "Can't lseek %d", i_mm->t->incr - 1);
+		rb_raise(rb_eIOError, "Can't lseek %lu", i_mm->t->incr - 1);
 	    }
 	    if (write(fd, "\000", 1) != 1) {
 		rb_raise(rb_eIOError, "Can't extend %s", path);
@@ -1057,8 +1057,8 @@ mm_update(str, beg, len, val)
     long vall;
 
     if (str->t->flag & MM_FROZEN) rb_error_frozen("mmap");
-    if (len < 0) rb_raise(rb_eIndexError, "negative length %d", len);
-    mm_lock(str);
+    if (len < 0) rb_raise(rb_eIndexError, "negative length %ld", len);
+    mm_lock(str, Qtrue);
     if (beg < 0) {
 	beg += str->t->real;
     }
@@ -1067,7 +1067,7 @@ mm_update(str, beg, len, val)
 	    beg -= str->t->real;
 	}
 	mm_unlock(str);
-	rb_raise(rb_eIndexError, "index %d out of string", beg);
+	rb_raise(rb_eIndexError, "index %ld out of string", beg);
     }
     if (str->t->real < (size_t)(beg + len)) {
 	len = str->t->real - beg;
@@ -1075,7 +1075,7 @@ mm_update(str, beg, len, val)
 
     mm_unlock(str);
     StringMmap(val, valp, vall);
-    mm_lock(str);
+    mm_lock(str, Qtrue);
 
     if ((str->t->flag & MM_FIXED) && vall != len) {
 	mm_unlock(str);
@@ -1439,7 +1439,7 @@ mm_aset(str, indx, val)
 	    idx += i_mm->t->real;
 	}
 	if (idx < 0 || i_mm->t->real <= (size_t)idx) {
-	    rb_raise(rb_eIndexError, "index %d out of string", idx);
+	    rb_raise(rb_eIndexError, "index %ld out of string", idx);
 	}
 	if (FIXNUM_P(val)) {
 	    if (i_mm->t->real == (size_t)idx) {
