@@ -340,27 +340,17 @@ mm_str(VALUE obj, int modify)
 	if (!OBJ_TAINTED(ret) && rb_safe_level() >= 4)
 	    rb_raise(rb_eSecurityError, "Insecure: can't modify mmap");
     }
-#if HAVE_RB_DEFINE_ALLOC_FUNC
     ret = rb_obj_alloc(rb_cString);
     if (rb_obj_tainted(obj)) {
 	OBJ_TAINT(ret);
     }
-#else
-    if (rb_obj_tainted(obj)) {
-	ret = rb_tainted_str_new2("");
-    }
-    else {
-	ret = rb_str_new2("");
-    }
-    free(RSTRING(ret)->ptr);
-#endif
     RSTRING(ret)->as.heap.ptr = i_mm->t->addr;
-    RSTRING(ret)->as.heap.aux.capa = i_mm->t->real;
+    RSTRING(ret)->as.heap.aux.capa = i_mm->t->len;
+    RSTRING(ret)->as.heap.len = i_mm->t->real;
     if (modify & MM_ORIGIN) {
 #if HAVE_RB_DEFINE_ALLOC_FUNC
-	RSTRING(ret)->as.heap.aux.shared = ret;
+	RSTRING(ret)->as.heap.aux.shared = obj;
 	FL_SET(ret, RSTRING_NOEMBED);
-	FL_SET(ret, ELTS_SHARED);
 #else
 	RSTRING(ret)->orig = ret;
 #endif
@@ -2004,9 +1994,7 @@ mm_i_bang(bang_st)
 
 
 static VALUE
-mm_bang_i(obj, flag, id, argc, argv)
-    VALUE obj, *argv;
-    int flag, id, argc;
+mm_bang_i(VALUE obj, int flag, int id, int argc, VALUE *argv)
 {
     VALUE res;
     mm_ipc *i_mm;
@@ -2263,9 +2251,7 @@ mm_rindex(argc, argv, obj)
  * return a substring of <em>lenght</em> characters from <em>start</em> 
  */
 static VALUE
-mm_aref_m(argc, argv, obj)
-    int argc;
-    VALUE *argv, obj;
+mm_aref_m(int argc, VALUE *argv, VALUE obj)
 {
     return mm_bang_i(obj, MM_ORIGIN, rb_intern("[]"), argc, argv);
 }

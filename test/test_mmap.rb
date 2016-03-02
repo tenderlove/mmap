@@ -1,9 +1,9 @@
 require 'mmap'
 require 'fileutils'
 require 'tempfile'
-require 'test/unit'
+require 'minitest/autorun'
 
-class TestMmap < Test::Unit::TestCase
+class TestMmap < Minitest::Test
   EXT_DIR = File.expand_path(File.join(File.dirname(__FILE__), '..', 'ext', 'mmap'))
 
   def setup
@@ -50,25 +50,29 @@ class TestMmap < Test::Unit::TestCase
     assert_equal(@mmap.length, @str.length, "<lenght>")
   end
 
+  def test_simple_aref
+    assert_equal(@str[10], @mmap[10], "<aref>");
+  end
+
   def test_aref
     max = @str.size * 2
     72.times do
       ran1 = rand(max)
-      assert_equal(@mmap[ran1], @str[ran1], "<aref>");
-      assert_equal(@mmap[-ran1], @str[-ran1], "<aref>");
+      assert_equal(@str[ran1], @mmap[ran1], "<aref>");
+      assert_equal(@str[-ran1], @mmap[-ran1], "<aref>");
       ran2 = rand(max)
-      assert_equal(@mmap[ran1, ran2], @str[ran1, ran2], "<double aref>");
-      assert_equal(@mmap[-ran1, ran2], @str[-ran1, ran2], "<double aref>");
-      assert_equal(@mmap[ran1, -ran2], @str[ran1, -ran2], "<double aref>");
-      assert_equal(@mmap[-ran1, -ran2], @str[-ran1, -ran2], "<double aref>");
-      assert_equal(@mmap[ran1 .. ran2], @str[ran1 .. ran2], "<double aref>");
-      assert_equal(@mmap[-ran1 .. ran2], @str[-ran1 .. ran2], "<double aref>");
-      assert_equal(@mmap[ran1 .. -ran2], @str[ran1 .. -ran2], "<double aref>");
-      assert_equal(@mmap[-ran1 .. -ran2], @str[-ran1 .. -ran2], "<double aref>");
+      assert_equal(@str[ran1, ran2],     @mmap[ran1, ran2], "<double aref>");
+      assert_equal(@str[-ran1, ran2],    @mmap[-ran1, ran2], "<double aref>");
+      assert_equal(@str[ran1, -ran2],    @mmap[ran1, -ran2], "<double aref>");
+      assert_equal(@str[-ran1, -ran2],   @mmap[-ran1, -ran2], "<double aref>");
+      assert_equal(@str[ran1 .. ran2],   @mmap[ran1 .. ran2], "<double aref>");
+      assert_equal(@str[-ran1 .. ran2],  @mmap[-ran1 .. ran2], "<double aref>");
+      assert_equal(@str[ran1 .. -ran2],  @mmap[ran1 .. -ran2], "<double aref>");
+      assert_equal(@str[-ran1 .. -ran2], @mmap[-ran1 .. -ran2], "<double aref>");
     end
-    assert_equal(@mmap[/random/], @str[/random/], "<aref regexp>")
-    assert_equal(@mmap[/real/], @str[/real/], "<aref regexp>")
-    assert_equal(@mmap[/none/], @str[/none/], "<aref regexp>")
+    assert_equal(@str[/random/], @mmap[/random/], "<aref regexp>")
+    assert_equal(@str[/real/],   @mmap[/real/], "<aref regexp>")
+    assert_equal(@str[/none/],   @mmap[/none/], "<aref regexp>")
   end
 
   def internal_aset(a, b = nil, c = true)
@@ -168,11 +172,11 @@ class TestMmap < Test::Unit::TestCase
   end
 
   def test_reg
-    assert_equal(@mmap.scan(/include/), @str.scan(/include/), "<scan>")
-    assert_equal(@mmap.index("rb_raise"), @str.index("rb_raise"), "<index>")
-    assert_equal(@mmap.rindex("rb_raise"), @str.rindex("rb_raise"), "<rindex>")
-    assert_equal(@mmap.index(/rb_raise/), @str.index(/rb_raise/), "<index>")
-    assert_equal(@mmap.rindex(/rb_raise/), @str.rindex(/rb_raise/), "<rindex>")
+    assert_equal(@str.scan(/include/), @mmap.scan(/include/), "<scan>")
+    assert_equal(@mmap.index("rb_raise"), @mmap.index("rb_raise"), "<index>")
+    assert_equal(@mmap.rindex("rb_raise"), @mmap.rindex("rb_raise"), "<rindex>")
+    assert_equal(@mmap.index(/rb_raise/), @mmap.index(/rb_raise/), "<index>")
+    assert_equal(@mmap.rindex(/rb_raise/), @mmap.rindex(/rb_raise/), "<rindex>")
     ('a' .. 'z').each do |i|
       assert_equal(@mmap.index(i), @str.index(i), "<index>")
       assert_equal(@mmap.rindex(i), @str.rindex(i), "<rindex>")
@@ -180,7 +184,7 @@ class TestMmap < Test::Unit::TestCase
         assert_equal(@mmap.rindex(i), @str.rindex(/#{i}/), "<rindex>")
     end
     @mmap.sub!(/GetMmap/, 'XXXX'); @str.sub!(/GetMmap/, 'XXXX')
-    assert_equal(@mmap.to_str, @str, "<after sub!>")
+    assert_equal(@str, @mmap.to_str, "<after sub!>")
     @mmap.gsub!(/GetMmap/, 'XXXX'); @str.gsub!(/GetMmap/, 'XXXX')
     assert_equal(@mmap.to_str, @str, "<after gsub!>")
     @mmap.gsub!(/YYYY/, 'XXXX'); @str.gsub!(/YYYY/, 'XXXX')
