@@ -87,7 +87,7 @@ class TestMmap < Minitest::Test
                  "[a .. b] = '#{repl}'"
                end
              else
-               "[a] = #{(65 + rand(25))}"
+               "[a] = #{(65 + rand(25))}.chr"
              end
     begin
       eval "@str#{access}"
@@ -222,9 +222,6 @@ class TestMmap < Minitest::Test
   end
 
   def test_iterate
-    mmap = []; @mmap.each {|l| mmap << l}
-    str = []; @str.each {|l| str << l}
-    assert_equal(mmap, str, "<each>")
     mmap = []; @mmap.each_byte {|l| mmap << l}
     str = []; @str.each_byte {|l| str << l}
     assert_equal(mmap, str, "<each_byte>")
@@ -269,8 +266,8 @@ class TestMmap < Minitest::Test
     assert_equal(@mmap.to_str, @str, "protect")
     assert_raises(TypeError) { @mmap << "a" }
     assert_equal(@mmap, @mmap.protect("r"), "protect")
-    assert_raises(TypeError) { @mmap[12] = "a" }
-    assert_raises(TypeError) { @mmap.protect("rw") }
+    assert_raises(RuntimeError) { @mmap[12] = "a" }
+    assert_raises(RuntimeError) { @mmap.protect("rw") }
   end
 
   def test_anonymous
@@ -281,7 +278,7 @@ class TestMmap < Minitest::Test
       @str = " " * 8192
       1024.times do
         pos = rand(8192)
-        @mmap[pos] = @str[pos] = 32 + rand(64)
+        @mmap[pos] = @str[pos] = (32 + rand(64)).chr
       end
       assert_equal(@mmap.to_str, @str, "insert anonymous")
       assert_raises(IndexError) { @mmap[12345] = "a" }
@@ -348,8 +345,8 @@ class TestMmap < Minitest::Test
       string = "azertyuiopqsdfghjklm"
       assert_kind_of(Mmap, m0 = Mmap.new("#{@tmp}/aa", "r"), "new r")
       assert_equal(string, m0.to_str, "content")
-      assert_raises(TypeError) { m0[0] = 12 }
-      assert_raises(TypeError) { m0 << 12 }
+      assert_raises(RuntimeError) { m0[0] = 12 }
+      assert_raises(RuntimeError) { m0 << 12 }
       assert_nil(m0.munmap, "munmap")
       if defined?(Mmap::MAP_ANONYMOUS)
         assert_raises(ArgumentError) { Mmap.new(nil, "w") }
