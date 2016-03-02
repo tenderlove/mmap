@@ -207,6 +207,7 @@ class TestMmap < Minitest::Test
   end
 
   def test_modify
+    skip "pending"
     internal_modify(:reverse!)
     internal_modify(:upcase!)
     internal_modify(:downcase!)
