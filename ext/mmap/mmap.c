@@ -619,15 +619,6 @@ mm_i_ipc(arg, obj)
  * 
  *   advice:: the type of the access (see #madvise)
  */
-static VALUE
-mm_s_new(argc, argv, obj)
-    int argc;
-    VALUE *argv, obj;
-{
-    VALUE res = rb_funcall2(obj, rb_intern("allocate"), 0, 0);
-    rb_obj_call_init(res, argc, argv);
-    return res;
-}
 
 static VALUE
 mm_s_alloc(obj)
@@ -2510,7 +2501,6 @@ Init_mmap()
 #endif
 
     rb_define_alloc_func(mm_cMap, mm_s_alloc);
-    rb_define_singleton_method(mm_cMap, "new", mm_s_new, -1);
     rb_define_singleton_method(mm_cMap, "mlockall", mm_mlockall, 1);
     rb_define_singleton_method(mm_cMap, "lockall", mm_mlockall, 1);
     rb_define_singleton_method(mm_cMap, "munlockall", mm_munlockall, 0);
