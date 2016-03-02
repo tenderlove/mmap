@@ -171,6 +171,10 @@ class TestMmap < Minitest::Test
     end
   end
 
+  def test_easy_sub!
+    assert_equal(@mmap.index("rb_raise"), @mmap.index("rb_raise"), "<index>")
+  end
+
   def test_reg
     assert_equal(@str.scan(/include/), @mmap.scan(/include/), "<scan>")
     assert_equal(@mmap.index("rb_raise"), @mmap.index("rb_raise"), "<index>")
@@ -305,7 +309,7 @@ class TestMmap < Minitest::Test
       assert_equal(@str =~ /rb_match_buzy/,
                    @mmap =~ /rb_match_buzy/, "no match")
     end
-    assert_raises(TypeError) { @mmap[12] = "a" }
+    assert_raises(RuntimeError) { @mmap[12] = "a" }
   end
 
   def test_div

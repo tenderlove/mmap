@@ -118,8 +118,7 @@ union semun
 #endif
 
 static void
-mm_free(i_mm)
-    mm_ipc *i_mm;
+mm_free(mm_ipc * i_mm)
 {
 #if HAVE_SEMCTL && HAVE_SHMCTL
     if (i_mm->t->flag & MM_IPC) {
@@ -351,6 +350,7 @@ mm_str(VALUE obj, int modify)
 #if HAVE_RB_DEFINE_ALLOC_FUNC
 	RSTRING(ret)->as.heap.aux.shared = obj;
 	FL_SET(ret, RSTRING_NOEMBED);
+	FL_SET(ret, FL_USER18);
 #else
 	RSTRING(ret)->orig = ret;
 #endif
@@ -1983,7 +1983,7 @@ mm_i_bang(bang_st)
     }
     else {
 	res = rb_funcall2(str, bang_st->id, bang_st->argc, bang_st->argv);
-	rb_gc_force_recycle(str);
+	RB_GC_GUARD(res);
     }
     if (res != Qnil) {
 	GetMmap(bang_st->obj, i_mm, 0);
@@ -2210,9 +2210,7 @@ mm_include(a, b)
  * return the index of <em>substr</em> 
  */
 static VALUE
-mm_index(argc, argv, obj)
-    int argc;
-    VALUE *argv, obj;
+mm_index(int argc, VALUE * argv, VALUE obj)
 {
     return mm_bang_i(obj, MM_ORIGIN, rb_intern("index"), argc, argv);
 }
