@@ -19,4 +19,4 @@ if enable_config("ipc")
    end
 end
 
-create_makefile "mmap"
+create_makefile "mmap/mmap"
