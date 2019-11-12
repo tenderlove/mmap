@@ -1074,7 +1074,11 @@ mm_update(str, beg, len, val)
     }
 
     mm_unlock(str);
-    StringMmap(val, valp, vall);
+    if (FIXNUM_P(val)) {
+        vall = 1;
+    } else {
+      StringMmap (val, valp, vall);
+    }
     mm_lock(str, Qtrue);
 
     if ((str->t->flag & MM_FIXED) && vall != len) {
@@ -1093,8 +1097,12 @@ mm_update(str, beg, len, val)
     if (str->t->real < (size_t)beg && len < 0) {
 	MEMZERO(str->t->addr + str->t->real, char, -len);
     }
-    if (vall > 0) {
-	memmove((char *)str->t->addr + beg, valp, vall);
+    if (vall > 0 && FIXNUM_P(val)){
+        int offset = beg;
+        char *ptr = (char *)str->t->addr + offset;
+        *ptr = FIX2INT(val);
+    } else if (vall > 0) {
+	    memmove((char *)str->t->addr + beg, valp, vall);
     }
     str->t->real += vall - len;
     mm_unlock(str);

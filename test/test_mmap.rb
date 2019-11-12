@@ -370,4 +370,19 @@ class TestMmap < Minitest::Test
       end
     end
   end
+
+  def test_insert_integer
+    m = @mmap
+    s = m.size
+    m.insert(0, 1)
+    assert_equal(s+1, m.size)
+    assert_equal(1, m[0].ord)
+
+    m[0,4] = "\x01\x01\x01\x01"
+    assert_equal("\x01", m[0])
+    m[0] = 0
+    assert_equal("\x00",m[0])
+    m[0] = 1
+    assert_equal("\x01",m[0])
+  end
 end
