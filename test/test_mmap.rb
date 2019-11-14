@@ -58,21 +58,25 @@ class TestMmap < Minitest::Test
     max = @str.size * 2
     72.times do
       ran1 = rand(max)
-      assert_equal(@str[ran1], @mmap[ran1], "<aref>");
-      assert_equal(@str[-ran1], @mmap[-ran1], "<aref>");
+      assert_same_result(@str[ran1], @mmap[ran1], "<aref>");
+      assert_same_result(@str[-ran1], @mmap[-ran1], "<aref>");
       ran2 = rand(max)
-      assert_equal(@str[ran1, ran2],     @mmap[ran1, ran2], "<double aref>");
-      assert_equal(@str[-ran1, ran2],    @mmap[-ran1, ran2], "<double aref>");
-      assert_equal(@str[ran1, -ran2],    @mmap[ran1, -ran2], "<double aref>");
-      assert_equal(@str[-ran1, -ran2],   @mmap[-ran1, -ran2], "<double aref>");
-      assert_equal(@str[ran1 .. ran2],   @mmap[ran1 .. ran2], "<double aref>");
-      assert_equal(@str[-ran1 .. ran2],  @mmap[-ran1 .. ran2], "<double aref>");
-      assert_equal(@str[ran1 .. -ran2],  @mmap[ran1 .. -ran2], "<double aref>");
-      assert_equal(@str[-ran1 .. -ran2], @mmap[-ran1 .. -ran2], "<double aref>");
+      assert_same_result(@str[ran1, ran2],     @mmap[ran1, ran2], "<double aref>");
+      assert_same_result(@str[-ran1, ran2],    @mmap[-ran1, ran2], "<double aref>");
+      assert_same_result(@str[ran1, -ran2],    @mmap[ran1, -ran2], "<double aref>");
+      assert_same_result(@str[-ran1, -ran2],   @mmap[-ran1, -ran2], "<double aref>");
+      assert_same_result(@str[ran1 .. ran2],   @mmap[ran1 .. ran2], "<double aref>");
+      assert_same_result(@str[-ran1 .. ran2],  @mmap[-ran1 .. ran2], "<double aref>");
+      assert_same_result(@str[ran1 .. -ran2],  @mmap[ran1 .. -ran2], "<double aref>");
+      assert_same_result(@str[-ran1 .. -ran2], @mmap[-ran1 .. -ran2], "<double aref>");
     end
-    assert_equal(@str[/random/], @mmap[/random/], "<aref regexp>")
-    assert_equal(@str[/real/],   @mmap[/real/], "<aref regexp>")
-    assert_equal(@str[/none/],   @mmap[/none/], "<aref regexp>")
+    assert_same_result(@str[/random/], @mmap[/random/], "<aref regexp>")
+    assert_same_result(@str[/real/],   @mmap[/real/], "<aref regexp>")
+    assert_same_result(@str[/none/],   @mmap[/none/], "<aref regexp>")
+  end
+
+  def assert_same_result expected, actual, msg
+    expected.nil? ? assert_nil(actual, msg) : assert_equal(expected, actual, msg)
   end
 
   def internal_aset(a, b = nil, c = true)
@@ -300,11 +304,11 @@ class TestMmap < Minitest::Test
                    @mmap.match("rb_match_busy").offset(0), "match")
       assert_equal(@str.match(/rb_../).offset(0),
                    @mmap.match(/rb_../).offset(0), "match")
-      assert_equal(@str.match("rb_match_buzy"),
+      assert_same_result(@str.match("rb_match_buzy"),
                    @mmap.match("rb_match_buzy"), "no match")
       assert_equal(@str =~ /rb_match_busy/,
                    @mmap =~ /rb_match_busy/, "match")
-      assert_equal(@str =~ /rb_match_buzy/,
+      assert_same_result(@str =~ /rb_match_buzy/,
                    @mmap =~ /rb_match_buzy/, "no match")
     end
     assert_raises(RuntimeError) { @mmap[12] = "a" }
