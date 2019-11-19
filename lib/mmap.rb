@@ -19,4 +19,21 @@ class Mmap
   def dup # :nodoc:
     raise TypeError, "can't dup instance of #{self.class}"
   end
+
+  private
+
+  def process_options(options)
+    options.each do |k, v|
+      case k
+      when "length" then set_length v
+      when "offset" then set_offset v
+      when "advice" then set_advice v
+      when "increment" then set_increment v
+      when "initialize" # skip
+      when "ipc" then set_ipc v
+      else
+        warn "Unknown option #{k}"
+      end
+    end
+  end
 end
