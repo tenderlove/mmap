@@ -489,58 +489,78 @@ mm_extend(obj, a)
     return UINT2NUM(i_mm->t->len);
 }
 
-static VALUE
-mm_i_options(arg, obj)
-    VALUE arg, obj;
+static
+VALUE mm_set_ipc(VALUE self, VALUE value)
 {
     mm_ipc *i_mm;
-    char *options;
-    VALUE key, value;
+    Data_Get_Struct(self, mm_ipc, i_mm);
 
-    Data_Get_Struct(obj, mm_ipc, i_mm);
-    key = rb_ary_entry(arg, 0);
-    value = rb_ary_entry(arg, 1);
-    key = rb_obj_as_string(key);
-    options = StringValuePtr(key);
-    if (strcmp(options, "length") == 0) {
-	i_mm->t->len = NUM2UINT(value);
-	if (i_mm->t->len <= 0) {
-	    rb_raise(rb_eArgError, "Invalid value for length %zu", i_mm->t->len);
-	}
-	i_mm->t->flag |= MM_FIXED;
-    }
-    else if (strcmp(options, "offset") == 0) {
-	i_mm->t->offset = NUM2INT(value);
-	if (i_mm->t->offset < 0) {
-	    rb_raise(rb_eArgError, "Invalid value for offset %lld", i_mm->t->offset);
-	}
-	i_mm->t->flag |= MM_FIXED;
-    }
-    else if (strcmp(options, "advice") == 0) {
-	i_mm->t->advice = NUM2INT(value);
-    }
-    else if (strcmp(options, "increment") == 0) {
-	int incr =  NUM2INT(value);
-	if (incr < 0) {
-	    rb_raise(rb_eArgError, "Invalid value for increment %d", incr);
-	}
-	i_mm->t->incr = incr;
-    }
-    else if (strcmp(options, "initialize") == 0) {
-    }
 #if HAVE_SEMCTL && HAVE_SHMCTL
-    else if (strcmp(options, "ipc") == 0) {
-	if (value != Qtrue && TYPE(value) != T_HASH) {
-	    rb_raise(rb_eArgError, "Expected an Hash for :ipc");
-	}
-	i_mm->t->shmid = value;
-	i_mm->t->flag |= (MM_IPC | MM_TMP);
+    if (value != Qtrue && TYPE(value) != T_HASH) {
+        rb_raise(rb_eArgError, "Expected an Hash for :ipc");
     }
+    i_mm->t->shmid = value;
+    i_mm->t->flag |= (MM_IPC | MM_TMP);
 #endif
-    else {
-	rb_warning("Unknown option `%s'", options);
+
+    return self;
+}
+
+
+static
+VALUE mm_set_increment(VALUE self, VALUE value)
+{
+    mm_ipc *i_mm;
+    Data_Get_Struct(self, mm_ipc, i_mm);
+
+    int incr =  NUM2INT(value);
+    if (incr < 0) {
+        rb_raise(rb_eArgError, "Invalid value for increment %d", incr);
     }
-    return Qnil;
+    i_mm->t->incr = incr;
+
+    return self;
+}
+
+static
+VALUE mm_set_advice(VALUE self, VALUE value)
+{
+    mm_ipc *i_mm;
+    Data_Get_Struct(self, mm_ipc, i_mm);
+
+    i_mm->t->advice = NUM2INT(value);
+
+    return self;
+}
+
+static
+VALUE mm_set_offset(VALUE self, VALUE value)
+{
+    mm_ipc *i_mm;
+    Data_Get_Struct(self, mm_ipc, i_mm);
+
+    i_mm->t->offset = NUM2INT(value);
+    if (i_mm->t->offset < 0) {
+        rb_raise(rb_eArgError, "Invalid value for offset %lld", i_mm->t->offset);
+    }
+    i_mm->t->flag |= MM_FIXED;
+
+    return self;
+}
+
+static
+VALUE mm_set_length(VALUE self, VALUE value)
+{
+    mm_ipc *i_mm;
+    Data_Get_Struct(self, mm_ipc, i_mm);
+
+    i_mm->t->len = NUM2UINT(value);
+    if (i_mm->t->len <= 0) {
+        rb_raise(rb_eArgError, "Invalid value for length %zu", i_mm->t->len);
+    }
+    i_mm->t->flag |= MM_FIXED;
+
+    return self;
 }
 
 #if HAVE_SEMCTL && HAVE_SHMCTL
@@ -765,7 +785,7 @@ mm_init(argc, argv, obj)
     i_mm->t->semid = 0;
     offset = 0;
     if (options != Qnil) {
-	rb_iterate(rb_each, options, mm_i_options, obj);
+        rb_funcall(obj, rb_intern("process_options"), 1, options);
 	if (path && (i_mm->t->len + i_mm->t->offset) > st.st_size) {
 	    rb_raise(rb_eArgError, "invalid value for length (%ld) or offset (%lld)",
 		     i_mm->t->len, i_mm->t->offset);
@@ -2593,4 +2613,10 @@ Init_mmap()
     rb_define_method(mm_cMap, "slice!", mm_slice_bang, -1);
     rb_define_method(mm_cMap, "semlock", mm_semlock, -1);
     rb_define_method(mm_cMap, "ipc_key", mm_ipc_key, 0);
+
+    rb_define_private_method(mm_cMap, "set_length", mm_set_length, 1);
+    rb_define_private_method(mm_cMap, "set_offset", mm_set_offset, 1);
+    rb_define_private_method(mm_cMap, "set_advice", mm_set_advice, 1);
+    rb_define_private_method(mm_cMap, "set_increment", mm_set_increment, 1);
+    rb_define_private_method(mm_cMap, "set_ipc", mm_set_ipc, 1);
 }
