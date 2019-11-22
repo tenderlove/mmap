@@ -2289,30 +2289,6 @@ mm_internal_each(tmp)
 }
 
 /*
- * Document-method: each
- * Document-method: each_line
- *
- * call-seq:
- *    each(rs = $/, &block)
- *
- * iterate on each line
- */
-static VALUE
-mm_each_line(argc, argv, obj)
-    int argc;
-    VALUE obj, *argv;
-{
-    VALUE tmp[4];
-
-    tmp[0] = mm_str(obj, MM_ORIGIN);
-    tmp[1] = (VALUE)rb_intern("each_line");
-    tmp[2] = (VALUE)argc;
-    tmp[3] = (VALUE)argv;
-    rb_iterate(mm_internal_each, (VALUE)tmp, rb_yield, 0);
-    return obj;
-}
-
-/*
  * call-seq: each_byte(&block)
  *
  * iterate on each byte
@@ -2555,8 +2531,6 @@ Init_mmap()
     rb_define_method(mm_cMap, "delete!", mm_delete_bang, -1);
     rb_define_method(mm_cMap, "squeeze!", mm_squeeze_bang, -1);
 
-    rb_define_method(mm_cMap, "each_line", mm_each_line, -1);
-    rb_define_method(mm_cMap, "each", mm_each_line, -1);
     rb_define_method(mm_cMap, "each_byte", mm_each_byte, -1);
 
     rb_define_method(mm_cMap, "sum", mm_sum, -1);

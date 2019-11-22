@@ -179,6 +179,29 @@ class TestMmap < Minitest::Test
     assert_equal(@mmap.index("rb_raise"), @mmap.index("rb_raise"), "<index>")
   end
 
+  def test_each_line
+    actual = []
+    expected = []
+    @mmap.each_line { |line| actual << line }
+    @str.each_line { |line| expected << line }
+    assert_equal expected, actual
+
+    actual = []
+    expected = []
+    @mmap.each_line("in") { |line| actual << line }
+    @str.each_line("in") { |line| expected << line }
+    assert_equal expected, actual
+  end
+
+  def test_each
+    assert_raises NoMethodError do
+      @mmap.each { |line| }
+    end
+    assert_raises NoMethodError do
+      @str.each { |line| }
+    end
+  end
+
   def test_reg
     assert_equal(@str.scan(/include/), @mmap.scan(/include/), "<scan>")
     assert_equal(@mmap.index("rb_raise"), @mmap.index("rb_raise"), "<index>")
