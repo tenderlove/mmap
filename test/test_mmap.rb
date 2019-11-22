@@ -194,12 +194,7 @@ class TestMmap < Minitest::Test
   end
 
   def test_each
-    assert_raises NoMethodError do
-      @mmap.each { |line| }
-    end
-    assert_raises NoMethodError do
-      @str.each { |line| }
-    end
+    assert_equal @str.bytes, @mmap.to_a
   end
 
   def test_reg

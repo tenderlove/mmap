@@ -27,7 +27,6 @@ class Mmap
     to_str.scan(pattern, &block)
   end
 
-  # Document-method: each
   # Document-method: each_line
   #
   # call-seq:
@@ -44,6 +43,7 @@ class Mmap
   def each_byte(&block)
     to_str.each_byte(&block)
   end
+  alias :each :each_byte
 
   private
 
