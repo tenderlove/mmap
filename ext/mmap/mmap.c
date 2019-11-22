@@ -1067,7 +1067,6 @@ mm_update(str, beg, len, val)
     char *valp;
     long vall;
 
-    if (str->t->flag & MM_FROZEN) rb_error_frozen("mmap");
     if (len < 0) rb_raise(rb_eIndexError, "negative length %ld", len);
     mm_lock(str, Qtrue);
     if (beg < 0) {
