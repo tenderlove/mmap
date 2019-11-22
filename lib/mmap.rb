@@ -38,6 +38,13 @@ class Mmap
     to_str.each_line(*args, &block)
   end
 
+  # call-seq: each_byte(&block)
+  #
+  # iterate on each byte
+  def each_byte(&block)
+    to_str.each_byte(&block)
+  end
+
   private
 
   def process_options(options)
