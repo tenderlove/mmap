@@ -459,7 +459,6 @@ mm_realloc(i_mm, len)
     mm_ipc *i_mm;
     size_t len;
 {
-    if (i_mm->t->flag & MM_FROZEN) rb_error_frozen("mmap");
     if (len > i_mm->t->len) {
 	if ((len - i_mm->t->len) < i_mm->t->incr) {
 	    len = i_mm->t->len + i_mm->t->incr;
