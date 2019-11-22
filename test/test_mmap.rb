@@ -314,6 +314,13 @@ class TestMmap < Minitest::Test
     assert_raises(RuntimeError) { @mmap[12] = "a" }
   end
 
+  def test_frozen
+    @mmap.freeze
+    assert_raises FrozenError do
+      @mmap.sub!(/GetMmap/, 'XXXX'); @str.sub!(/GetMmap/, 'XXXX')
+    end
+  end
+
   def test_div
     string = "azertyuiopqsdfghjklm"
     assert_kind_of(Mmap, m0 = Mmap.new("#{@tmp}/aa", "a"), "new a")
@@ -372,6 +379,29 @@ class TestMmap < Minitest::Test
         assert_raises(ArgumentError) { Mmap::lockall(0) }
         assert_nil(m0.munmap, "munmap")
       end
+    end
+  end
+
+  def test_insert_integer
+    m = @mmap
+    s = m.size
+    m.insert(0, 1.chr)
+    assert_equal(s+1, m.size)
+    assert_equal(1, m[0].ord)
+
+    m[0,4] = "\x01\x01\x01\x01"
+    assert_equal("\x01", m[0])
+    m[0] = 0
+    assert_equal("\x00",m[0])
+    m[0] = 1
+    assert_equal("\x01",m[0])
+  end
+
+  def test_insert_frozen
+    m = @mmap
+    @mmap.freeze
+    assert_raises FrozenError do
+      m.insert(0, 1.chr)
     end
   end
 end
