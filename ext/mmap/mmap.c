@@ -2281,33 +2281,6 @@ mm_count(argc, argv, obj)
     return mm_bang_i(obj, MM_ORIGIN, rb_intern("count"), argc, argv);
 }
 
-static VALUE
-mm_internal_each(tmp)
-    VALUE *tmp;
-{
-    return rb_funcall2(tmp[0], (ID)tmp[1], (int)tmp[2], (VALUE *)tmp[3]);
-}
-
-/*
- * call-seq: each_byte(&block)
- *
- * iterate on each byte
- */
-static VALUE
-mm_each_byte(argc, argv, obj)
-    int argc;
-    VALUE obj, *argv;
-{
-    VALUE tmp[4];
-
-    tmp[0] = mm_str(obj, MM_ORIGIN);
-    tmp[1] = (VALUE)rb_intern("each_byte");
-    tmp[2] = (VALUE)argc;
-    tmp[3] = (VALUE)argv;
-    rb_iterate(mm_internal_each, (VALUE)tmp, rb_yield, 0);
-    return obj;
-}
-
 /*
  * Document-method: lockall
  * Document-method: mlockall
@@ -2530,8 +2503,6 @@ Init_mmap()
     rb_define_method(mm_cMap, "tr_s!", mm_tr_s_bang, 2);
     rb_define_method(mm_cMap, "delete!", mm_delete_bang, -1);
     rb_define_method(mm_cMap, "squeeze!", mm_squeeze_bang, -1);
-
-    rb_define_method(mm_cMap, "each_byte", mm_each_byte, -1);
 
     rb_define_method(mm_cMap, "sum", mm_sum, -1);
 
