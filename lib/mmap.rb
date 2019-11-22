@@ -27,6 +27,17 @@ class Mmap
     to_str.scan(pattern, &block)
   end
 
+  # Document-method: each
+  # Document-method: each_line
+  #
+  # call-seq:
+  #    each(rs = $/, &block)
+  #
+  # iterate on each line
+  def each_line(*args, &block)
+    to_str.each_line(*args, &block)
+  end
+
   private
 
   def process_options(options)
