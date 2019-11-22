@@ -98,7 +98,6 @@ typedef struct {
 #define MM_CHANGE (MM_MODIFY | 4)
 #define MM_PROTECT 8
 
-#define MM_FROZEN (1<<0)
 #define MM_FIXED  (1<<1)
 #define MM_ANON   (1<<2)
 #define MM_LOCK   (1<<3)
@@ -215,8 +214,8 @@ mm_unlock(i_mm)
     if (!i_mm->t->path) {						\
 	rb_raise(rb_eIOError, "unmapped file");				\
     }									\
-    if ((t_modify & MM_MODIFY) && (i_mm->t->flag & MM_FROZEN)) {	\
-	rb_error_frozen("mmap");					\
+    if ((t_modify & MM_MODIFY)) {	\
+	rb_check_frozen(obj);					\
     }
 
 static VALUE
@@ -311,22 +310,6 @@ mm_unmap(obj)
     return Qnil;
 }
 
-/*
- * call-seq: freeze
- *
- * freeze the current file 
- */
-static VALUE
-mm_freeze(obj)
-    VALUE obj;
-{
-    mm_ipc *i_mm;
-    rb_obj_freeze(obj);
-    GetMmap(obj, i_mm, 0);
-    i_mm->t->flag |= MM_FROZEN;
-    return obj;
-}
-
 static VALUE
 mm_str(VALUE obj, int modify)
 {
@@ -335,7 +318,7 @@ mm_str(VALUE obj, int modify)
 
     GetMmap(obj, i_mm, modify & ~MM_ORIGIN);
     if (modify & MM_MODIFY) {
-	if (i_mm->t->flag & MM_FROZEN) rb_error_frozen("mmap");
+        rb_check_frozen(obj);
 	if (!OBJ_TAINTED(ret) && rb_safe_level() >= 4)
 	    rb_raise(rb_eSecurityError, "Insecure: can't modify mmap");
     }
@@ -355,7 +338,7 @@ mm_str(VALUE obj, int modify)
 	RSTRING(ret)->orig = ret;
 #endif
     }
-    if (i_mm->t->flag & MM_FROZEN) {
+    if (RB_OBJ_FROZEN(obj)) {
 	ret = rb_obj_freeze(ret);
     }
     return ret;
@@ -777,9 +760,7 @@ mm_init(argc, argv, obj)
 	}
     }
     Data_Get_Struct(obj, mm_ipc, i_mm);
-    if (i_mm->t->flag & MM_FROZEN) {
-	rb_raise(rb_eArgError, "frozen mmap");
-    }
+    rb_check_frozen(obj);
     i_mm->t->shmid = 0;
     i_mm->t->semid = 0;
     offset = 0;
@@ -921,7 +902,6 @@ mm_init(argc, argv, obj)
     i_mm->t->path = (path)?ruby_strdup(path):(char *)-1;
     if (smode == O_RDONLY) {
 	obj = rb_obj_freeze(obj);
-	i_mm->t->flag |= MM_FROZEN;
     }
     else {
 	if (smode == O_WRONLY) {
@@ -994,8 +974,8 @@ mm_mprotect(obj, a)
     else {
 	pmode = NUM2INT(a);
     }
-    if ((pmode & PROT_WRITE) && (i_mm->t->flag & MM_FROZEN)) 
-	rb_error_frozen("mmap");
+    if ((pmode & PROT_WRITE) && RB_OBJ_FROZEN(obj))
+        rb_check_frozen(obj);
     if ((ret = mprotect(i_mm->t->addr, i_mm->t->len, pmode | PROT_READ)) != 0) {
 	rb_raise(rb_eArgError, "mprotect(%d)", ret);
     }
@@ -1005,7 +985,6 @@ mm_mprotect(obj, a)
 	else {
 	    i_mm->t->smode = O_RDONLY;
 	    obj = rb_obj_freeze(obj);
-	    i_mm->t->flag |= MM_FROZEN;
 	}
     }
     else if (pmode & PROT_WRITE) {
@@ -2543,7 +2522,6 @@ Init_mmap()
     rb_define_method(mm_cMap, "unlock", mm_munlock, 0);
 
     rb_define_method(mm_cMap, "extend", mm_extend, 1);
-    rb_define_method(mm_cMap, "freeze", mm_freeze, 0);
     rb_define_method(mm_cMap, "<=>", mm_cmp, 1);
     rb_define_method(mm_cMap, "==", mm_equal, 1);
     rb_define_method(mm_cMap, "===", mm_equal, 1);
