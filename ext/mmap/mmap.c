@@ -1982,7 +1982,7 @@ mm_i_bang(bang_st)
 
 
 static VALUE
-mm_bang_i(VALUE obj, int flag, int id, int argc, VALUE *argv)
+mm_bang_i(VALUE obj, int flag, ID id, int argc, VALUE *argv)
 {
     VALUE res;
     mm_ipc *i_mm;
@@ -2289,28 +2289,6 @@ mm_internal_each(tmp)
 }
 
 /*
- * call-seq: scan(pattern, &block)
- *
- * return an array of all occurence matched by <em>pattern</em> 
- */
-static VALUE
-mm_scan(obj, a)
-    VALUE obj, a;
-{
-    VALUE tmp[4];
-
-    if (!rb_block_given_p()) {
-	return rb_funcall(mm_str(obj, MM_ORIGIN), rb_intern("scan"), 1, a);
-    }
-    tmp[0] = mm_str(obj, MM_ORIGIN);
-    tmp[1] = (VALUE)rb_intern("scan");
-    tmp[2] = (VALUE)1;
-    tmp[3] = (VALUE)&a;
-    rb_iterate(mm_internal_each, (VALUE)tmp, rb_yield, 0);
-    return obj;
-}
-
-/*
  * Document-method: each
  * Document-method: each_line
  *
@@ -2559,8 +2537,6 @@ Init_mmap()
     rb_define_method(mm_cMap, "crypt", mm_crypt, 1);
 
     rb_define_method(mm_cMap, "include?", mm_include, 1);
-
-    rb_define_method(mm_cMap, "scan", mm_scan, 1);
 
     rb_define_method(mm_cMap, "sub!", mm_sub_bang, -1);
     rb_define_method(mm_cMap, "gsub!", mm_gsub_bang, -1);

@@ -20,6 +20,13 @@ class Mmap
     raise TypeError, "can't dup instance of #{self.class}"
   end
 
+  # call-seq: scan(pattern, &block)
+  #
+  # return an array of all occurence matched by <em>pattern</em>
+  def scan(pattern, &block)
+    to_str.scan(pattern, &block)
+  end
+
   private
 
   def process_options(options)
