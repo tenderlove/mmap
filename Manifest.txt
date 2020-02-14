@@ -6,6 +6,7 @@ b.rb
 ext/mmap/extconf.rb
 ext/mmap/mmap.c
 lib/mmap.rb
+lib/mmap/version.rb
 mmap.html
 mmap.rd
 test/test_mmap.rb
