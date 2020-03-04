@@ -1,11 +1,9 @@
 Changes
 Manifest.txt
-README.rdoc
+README.md
 Rakefile
 b.rb
 ext/mmap/extconf.rb
 ext/mmap/mmap.c
 lib/mmap.rb
-mmap.html
-mmap.rd
 test/test_mmap.rb
