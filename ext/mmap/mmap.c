@@ -319,13 +319,8 @@ mm_str(VALUE obj, int modify)
     GetMmap(obj, i_mm, modify & ~MM_ORIGIN);
     if (modify & MM_MODIFY) {
         rb_check_frozen(obj);
-	if (!OBJ_TAINTED(ret) && rb_safe_level() >= 4)
-	    rb_raise(rb_eSecurityError, "Insecure: can't modify mmap");
     }
     ret = rb_obj_alloc(rb_cString);
-    if (rb_obj_tainted(obj)) {
-	OBJ_TAINT(ret);
-    }
     RSTRING(ret)->as.heap.ptr = i_mm->t->addr;
     RSTRING(ret)->as.heap.aux.capa = i_mm->t->len;
     RSTRING(ret)->as.heap.len = i_mm->t->real;
@@ -675,10 +670,6 @@ mm_init(argc, argv, obj)
     else 
 #endif
     {
-	if (rb_safe_level() > 0 && OBJ_TAINTED(fname)){
-	    rb_raise(rb_eSecurityError, "Insecure operation");
-	}
-	rb_secure(4);
 	if (rb_respond_to(fname, rb_intern("fileno"))) {
 	    fdv = rb_funcall2(fname, rb_intern("fileno"), 0, 0);
 	}
@@ -907,7 +898,6 @@ mm_init(argc, argv, obj)
 	if (smode == O_WRONLY) {
 	    i_mm->t->flag |= MM_FIXED;
 	}
-	OBJ_TAINT(obj);
     }
     return obj;
 }
@@ -1154,7 +1144,6 @@ mm_correct_backref()
     start = RMATCH(match)->BEG(0);
     RMATCH(match)->str = rb_str_new(StringValuePtr(RMATCH(match)->str) + start,
 				    RMATCH(match)->END(0) - start);
-    if (OBJ_TAINTED(match)) OBJ_TAINT(RMATCH(match)->str);
     for (i = 0; i < RMATCH(match)->rmatch->regs.num_regs && RMATCH(match)->BEG(i) != -1; i++) {
 	RMATCH(match)->BEG(i) -= start;
 	RMATCH(match)->END(i) -= start;
@@ -1173,7 +1162,6 @@ mm_sub_bang_int(bang_st)
     VALUE pat, repl = Qnil, match, str, res;
     struct re_registers *regs;
     int start, iter = 0;
-    int tainted = 0;
     long plen;
     mm_ipc *i_mm;
 
@@ -1182,7 +1170,6 @@ mm_sub_bang_int(bang_st)
     }
     else if (argc == 2) {
 	repl = rb_str_to_str(argv[1]);
-	if (OBJ_TAINTED(repl)) tainted = 1;
     }
     else {
 	rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)", argc);
@@ -1206,7 +1193,6 @@ mm_sub_bang_int(bang_st)
 	    repl = rb_reg_regsub(repl, str, regs, match);
 	    RSTRING(str)->as.heap.ptr -= start;
 	}
-	if (OBJ_TAINTED(repl)) tainted = 1;
 	plen = RMATCH(match)->END(0) - RMATCH(match)->BEG(0);
 	if (RSTRING_LEN(repl) > plen) {
 	    mm_realloc(i_mm, RSTRING_LEN(str) + RSTRING_LEN(repl) - plen);
@@ -1223,7 +1209,6 @@ mm_sub_bang_int(bang_st)
 	memcpy(RSTRING_PTR(str) + start + RMATCH(match)->BEG(0),
 	       RSTRING_PTR(repl), RSTRING_LEN(repl));
 	i_mm->t->real += RSTRING_LEN(repl) - plen;
-	if (tainted) OBJ_TAINT(obj);
 
 	res = obj;
     }
@@ -1273,7 +1258,6 @@ mm_gsub_bang_int(bang_st)
     struct re_registers *regs;
     long beg, offset;
     int start, iter = 0;
-    int tainted = 0;
     long plen;
     mm_ipc *i_mm;
 
@@ -1282,7 +1266,6 @@ mm_gsub_bang_int(bang_st)
     }
     else if (argc == 2) {
 	repl = rb_str_to_str(argv[1]);
-	if (OBJ_TAINTED(repl)) tainted = 1;
     }
     else {
 	rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)", argc);
@@ -1311,7 +1294,6 @@ mm_gsub_bang_int(bang_st)
 	    val = rb_reg_regsub(repl, str, regs, match);
 	    RSTRING(str)->as.heap.ptr -= start;
 	}
-	if (OBJ_TAINTED(repl)) tainted = 1;
 	plen = RMATCH(match)->END(0) - RMATCH(match)->BEG(0);
 	if ((i_mm->t->real + RSTRING_LEN(val) - plen) > i_mm->t->len) {
 	    mm_realloc(i_mm, RSTRING_LEN(str) + RSTRING_LEN(val) - plen);
@@ -1339,7 +1321,6 @@ mm_gsub_bang_int(bang_st)
 	beg = rb_reg_search(pat, str, offset, 0);
     }
     rb_backref_set(match);
-    if (tainted) OBJ_TAINT(obj);
     rb_gc_force_recycle(str);
     return obj;
 }
