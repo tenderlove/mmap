@@ -1,24 +1,28 @@
-# coding: utf-8
-lib = File.expand_path('../lib', __FILE__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'mmap'
+# frozen_string_literal: true
+
+require_relative 'lib/mmap/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "mmap"
-  spec.version       = Mmap::VERSION
-  spec.authors       = ["Guy Decoux", "Aaron Patterson"]
-  spec.email         = ["ts@moulon.inra.fr", "tenderlove@github.com"]
-  spec.description   = %q{The Mmap class implement memory-mapped file objects}
-  spec.summary       = %q{The Mmap class implement memory-mapped file objects}
-  spec.homepage      = "https://github.com/tenderlove/mmap"
-  spec.license       = "https://www.ruby-lang.org/en/about/license.txt"
+  spec.name = 'mmap'
+  spec.version = Mmap::VERSION
+  spec.authors = ['Guy Decoux', 'Aaron Patterson']
+  spec.email = ['ts@moulon.inra.fr', 'tenderlove@github.com']
+  spec.description = 'The Mmap class implement memory-mapped file objects'
+  spec.summary = 'The Mmap class implement memory-mapped file objects'
+  spec.homepage = 'https://github.com/tenderlove/mmap'
+  spec.required_ruby_version = '>= 2.7'
+  spec.metadata['homepage_uri'] = spec.homepage
 
-  spec.files         = `git ls-files`.split($/)
-  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
-  spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
-  spec.require_paths = ["lib"]
-
-  spec.add_development_dependency "rake"
-  spec.add_development_dependency "rake-compiler"
-  spec.add_development_dependency "hoe"
+  # Specify which files should be added to the gem when it is released.
+  # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
+  gemspec = File.basename(__FILE__)
+  spec.files = IO.popen(%w[git ls-files -z], chdir: __dir__, err: IO::NULL) do |ls|
+    ls.readlines("\x0", chomp: true).reject do |f|
+      (f == gemspec) ||
+        f.start_with?(*%w[bin/ test/ spec/ features/ .git .github appveyor Gemfile])
+    end
+  end
+  spec.require_paths = %w[lib]
+  spec.extensions = %w[ext/mmap/extconf.rb]
+  spec.metadata['rubygems_mfa_required'] = 'true'
 end

@@ -1,9 +1,0 @@
-Changes
-Manifest.txt
-README.md
-Rakefile
-b.rb
-ext/mmap/extconf.rb
-ext/mmap/mmap.c
-lib/mmap.rb
-test/test_mmap.rb

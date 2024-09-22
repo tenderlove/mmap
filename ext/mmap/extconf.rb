@@ -1,22 +1,20 @@
-#!/usr/bin/ruby
-ARGV.collect! {|x| x.sub(/^--with-mmap-prefix=/, "--with-mmap-dir=") }
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+ARGV.map! { |x| x.sub(/^--with-mmap-prefix=/, '--with-mmap-dir=') }
 
 require 'mkmf'
 
-dir_config("mmap")
+dir_config('mmap')
 
-["lstrip", "match", "insert", "casecmp"].each do |func|
-   if "aa".respond_to?(func)
-      $CFLAGS += " -DHAVE_RB_STR_#{func.upcase}"
-   end
+%w[lstrip match insert casecmp].each do |func|
+  $CFLAGS += " -DHAVE_RB_STR_#{func.upcase}" if ''.respond_to?(func)
 end
 
 have_func 'rb_fstring_new'
+has_semctl = have_func 'semctl', 'sys/sem.h'
+has_shmctl = have_func 'shmctl', 'sys/shm.h'
 
-if enable_config("ipc")
-   unless have_func("semctl") && have_func("shmctl")
-      $stderr.puts "\tIPC will not be available"
-   end
-end
+warn "\tIPC will not be available" if enable_config('ipc') && !(has_semctl && has_shmctl)
 
-create_makefile "mmap"
+create_makefile 'mmap/mmap'

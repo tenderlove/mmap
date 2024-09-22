@@ -6,10 +6,10 @@ The Mmap class implement memory-mapped file objects
 
 ```ruby
   require 'mmap'
-  
+
   mmap = Mmap.new(__FILE__)
   mmap.advise(Mmap::MADV_SEQUENTIAL)
-  
+
   mmap.each do |line|
     puts line
   end
@@ -43,12 +43,12 @@ rake docs
 
 ### Class Methods
 
-- `lockall(flag)`:  
+- `lockall(flag)`:
       disable paging of all pages mapped. `|flag|` can be
       `Mmap::MCL_CURRENT` or `Mmap::MCL_FUTURE`
 
-- `new(file, mode = "r", protection = Mmap::MAP_SHARED, options = {})`  
-  `new(nil, length, protection = Mmap::MAP_SHARED, options = {})`:  
+- `new(file, mode = "r", protection = Mmap::MAP_SHARED, options = {})`
+  `new(nil, length, protection = Mmap::MAP_SHARED, options = {})`:
     create a new Mmap object
 
   - `file`:  Pathname of the file, if `nil` is given an anonymous map
@@ -57,8 +57,8 @@ rake docs
   - `mode`:  Mode to open the file, it can be `r`, `w`, `rw`, `a`
 
   - `protection`: specify the nature of the mapping
-    
-    - `Mmap::MAP_SHARED`: 
+
+    - `Mmap::MAP_SHARED`:
              Creates a mapping that's shared with all other processes
              mapping the same areas of the file.
              The default value is `Mmap::MAP_SHARED`
@@ -90,7 +90,7 @@ rake docs
 
 - `mlock`: disable paging
 
-- `msync`  
+- `msync`
   `flush`: flush the file
 
 - `munlock`: reenable paging
@@ -130,7 +130,7 @@ rake docs
 
 - `self <=> other`:     comparison : return -1, 0, 1
 
-- `casecmp(other)   >= 1.7.1`: 
+- `casecmp(other)   >= 1.7.1`:
 - `concat(other)`:     append the contents of `other`
 
 - `capitalize!`:     change the first character to uppercase letter

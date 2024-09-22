@@ -1,27 +1,22 @@
-# -*- ruby -*-
+# frozen_string_literal: true
 
-require 'rubygems'
-require 'hoe'
+require 'bundler/gem_tasks'
+require 'rake/testtask'
 
-gem 'rake-compiler', '>= 0.4.1'
-require "rake/extensiontask"
-
-HOE = Hoe.spec 'mmap' do
-  developer('Guy Decoux', 'ts@moulon.inra.fr')
-  self.readme_file   = 'README.md'
-  self.history_file  = 'Changes'
-  self.extra_rdoc_files  = FileList['*.md']
-
-  %w{ rake-compiler }.each do |dep|
-    self.extra_dev_deps << [dep, '>= 0']
-  end
-
-  self.spec_extras = { :extensions => ["ext/mmap/extconf.rb"] }
+Rake::TestTask.new do |t|
+  t.libs << 'lib' # Include lib directory in the load path
+  t.test_files = FileList['test/**/test_*.rb'] # Specify the test files
+  t.warning = true # Enable ruby warnings
 end
 
-RET = Rake::ExtensionTask.new("mmap", HOE.spec) do |ext|
-  ext.lib_dir = File.join('lib', 'mmap')
+require 'rubocop/rake_task'
+
+RuboCop::RakeTask.new
+
+require 'rake/extensiontask'
+
+Rake::ExtensionTask.new 'mmap' do |ext|
+  ext.lib_dir = 'lib/mmap'
 end
 
-# vim: syntax=ruby
-
+task default: %i[test rubocop]
